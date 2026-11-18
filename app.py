@@ -1,6 +1,8 @@
-
+﻿
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
 
 import pandas as pd
 import plotly.express as px
@@ -15,9 +17,34 @@ ROOT_DIR = Path(__file__).resolve().parent
 
 DB_FILE = ROOT_DIR / "data" / "processed" / "wash_observatory.db"
 
+def ensure_database():
+
+    if DB_FILE.exists():
+        return
+
+    rebuild_script = ROOT_DIR / "src" / "rebuild_database.py"
+
+    if not rebuild_script.exists():
+        raise FileNotFoundError(
+            f"Script de reconstruction introuvable : {rebuild_script}"
+        )
+
+    st.info("Initialisation de la base de donnÃ©es WASH...")
+
+    subprocess.run(
+        [sys.executable, str(rebuild_script)],
+        cwd=ROOT_DIR,
+        check=True
+    )
+
+    if not DB_FILE.exists():
+        raise FileNotFoundError(
+            "La reconstruction n'a pas crÃ©Ã© la base de donnÃ©es."
+        )
+    
 st.set_page_config(
     page_title="WASH Data Observatory | Congo",
-    page_icon="💧",
+    page_icon="ðŸ’§",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -46,9 +73,11 @@ GREEN = "#22A06B"
 @st.cache_data
 def load_data():
 
+    ensure_database()
+
     if not DB_FILE.exists():
         raise FileNotFoundError(
-            f"Base de données introuvable : {DB_FILE}"
+            f"Base de donnÃ©es introuvable : {DB_FILE}"
         )
 
     connection = sqlite3.connect(DB_FILE)
@@ -127,7 +156,7 @@ try:
     df = load_data()
 
 except Exception as error:
-    st.error(f"Erreur de chargement des données : {error}")
+    st.error(f"Erreur de chargement des donnÃ©es : {error}")
     st.stop()
 
 
@@ -135,15 +164,15 @@ except Exception as error:
 # 3. EN-TETE
 # ==========================================
 
-st.title("💧 WASH DATA OBSERVATORY")
+st.title("ðŸ’§ WASH DATA OBSERVATORY")
 
 st.subheader(
-    "Suivi des indicateurs Eau, Hygiène et Assainissement au Congo"
+    "Suivi des indicateurs Eau, HygiÃ¨ne et Assainissement au Congo"
 )
 
 st.caption(
-    "Plateforme de visualisation et d'exploration des données "
-    "WASH | République du Congo"
+    "Plateforme de visualisation et d'exploration des donnÃ©es "
+    "WASH | RÃ©publique du Congo"
 )
 
 st.divider()
@@ -152,7 +181,7 @@ st.divider()
 # 3B. PROVENANCE ET TRACABILITE
 # ==========================================
 
-st.header("🔎 Provenance et traçabilité des données")
+st.header("ðŸ”Ž Provenance et traÃ§abilitÃ© des donnÃ©es")
 
 if "extraction_id" in df.columns:
 
@@ -182,7 +211,7 @@ if "extraction_id" in df.columns:
             str(extraction["extraction_status"])
         )
 
-        st.markdown("**Sources des données**")
+        st.markdown("**Sources des donnÃ©es**")
 
         source_col1, source_col2 = st.columns(2)
 
@@ -198,7 +227,7 @@ if "extraction_id" in df.columns:
                 f"{extraction['original_source']}"
             )
 
-        with st.expander("Consulter les détails de l'extraction"):
+        with st.expander("Consulter les dÃ©tails de l'extraction"):
 
             st.write(
                 "**Identifiant de l'extraction :**"
@@ -206,7 +235,7 @@ if "extraction_id" in df.columns:
             st.code(str(extraction["extraction_id"]))
 
             st.write(
-                "**Début :**",
+                "**DÃ©but :**",
                 extraction["extraction_started_at"]
             )
 
@@ -216,18 +245,18 @@ if "extraction_id" in df.columns:
             )
 
             st.write(
-                "**Note méthodologique :**",
+                "**Note mÃ©thodologique :**",
                 extraction["extraction_notes"]
             )
 
     else:
         st.warning(
-            "Aucune information de traçabilité disponible."
+            "Aucune information de traÃ§abilitÃ© disponible."
         )
 
 else:
     st.warning(
-        "Les informations de traçabilité ne sont pas chargées."
+        "Les informations de traÃ§abilitÃ© ne sont pas chargÃ©es."
     )
 
 st.divider()
@@ -236,10 +265,10 @@ st.divider()
 # 4. BARRE LATERALE
 # ==========================================
 
-st.sidebar.title("⚙️ Navigation")
+st.sidebar.title("âš™ï¸ Navigation")
 
 st.sidebar.markdown(
-    "### Paramètres d'analyse"
+    "### ParamÃ¨tres d'analyse"
 )
 
 indicators = (
@@ -254,7 +283,7 @@ indicator_options = {
 }
 
 selected_label = st.sidebar.selectbox(
-    "Sélectionner un indicateur",
+    "SÃ©lectionner un indicateur",
     options=list(indicator_options.keys())
 )
 
@@ -270,12 +299,12 @@ available_data = selected_data.dropna(
 
 st.sidebar.divider()
 
-st.sidebar.markdown("### À propos")
+st.sidebar.markdown("### Ã€ propos")
 
 st.sidebar.info(
     "Source principale : World Bank API. "
-    "Les indicateurs sont associés aux métadonnées "
-    "du programme OMS/UNICEF lorsque renseignées."
+    "Les indicateurs sont associÃ©s aux mÃ©tadonnÃ©es "
+    "du programme OMS/UNICEF lorsque renseignÃ©es."
 )
 
 
@@ -284,7 +313,7 @@ st.sidebar.info(
 # 5. VUE D'ENSEMBLE ET KPI
 # ==========================================
 
-st.header("📊 État du jeu de données")
+st.header("ðŸ“Š Ã‰tat du jeu de donnÃ©es")
 
 total_observations = len(df)
 available_values = df["value"].notna().sum()
@@ -315,7 +344,7 @@ for col, (_, row) in zip(
                 f"{int(row['available_values'])}"
                 f"/{int(row['total_observations'])}"
             ),
-            delta=f"{row['completeness']:.1f}% de complétude"
+            delta=f"{row['completeness']:.1f}% de complÃ©tude"
         )
 
         st.caption(row["indicator_name"])
@@ -327,15 +356,15 @@ st.divider()
 # 6. ANALYSE DE L'INDICATEUR
 # ==========================================
 
-st.header("🔎 Analyse de l'indicateur sélectionné")
+st.header("ðŸ”Ž Analyse de l'indicateur sÃ©lectionnÃ©")
 st.markdown(f"**{selected_label}**")
 
-# Conserver toutes les années, même celles sans valeur
+# Conserver toutes les annÃ©es, mÃªme celles sans valeur
 min_year = int(selected_data["year"].min())
 max_year = int(selected_data["year"].max())
 
 year_range = st.slider(
-    "Période d'analyse",
+    "PÃ©riode d'analyse",
     min_value=min_year,
     max_value=max_year,
     value=(min_year, max_year)
@@ -348,7 +377,7 @@ filtered_data = selected_data[
     )
 ].copy().sort_values("year")
 
-# Séparer les observations disponibles pour les statistiques
+# SÃ©parer les observations disponibles pour les statistiques
 observed_data = filtered_data.dropna(
     subset=["value"]
 ).copy()
@@ -356,13 +385,13 @@ observed_data = filtered_data.dropna(
 if observed_data.empty:
 
     st.warning(
-        "Aucune valeur numérique disponible pour cet indicateur "
-        "dans la période sélectionnée."
+        "Aucune valeur numÃ©rique disponible pour cet indicateur "
+        "dans la pÃ©riode sÃ©lectionnÃ©e."
     )
 
     st.info(
-        "Les années sont conservées dans la base, mais les valeurs "
-        "manquantes ne peuvent pas être interprétées comme des zéros."
+        "Les annÃ©es sont conservÃ©es dans la base, mais les valeurs "
+        "manquantes ne peuvent pas Ãªtre interprÃ©tÃ©es comme des zÃ©ros."
     )
 
 else:
@@ -388,32 +417,32 @@ else:
     kpi4.metric("Variation", f"{variation:+.2f} pp")
 
     st.caption(
-        f"Première observation disponible : {first_year} | "
-        f"Dernière observation disponible : {last_year}"
+        f"PremiÃ¨re observation disponible : {first_year} | "
+        f"DerniÃ¨re observation disponible : {last_year}"
     )
 
-    # Années réellement disponibles
+    # AnnÃ©es rÃ©ellement disponibles
     observed_years = sorted(
         observed_data["year"].astype(int).tolist()
     )
 
-    st.markdown("**Années disposant de valeurs :**")
+    st.markdown("**AnnÃ©es disposant de valeurs :**")
 
     st.write(", ".join(map(str, observed_years)))
 
     st.divider()
 
     # Graphique temporel : conserver les valeurs manquantes
-    st.subheader("📈 Évolution temporelle")
+    st.subheader("ðŸ“ˆ Ã‰volution temporelle")
 
     fig = px.line(
         filtered_data,
         x="year",
         y="value",
         markers=True,
-        title="Évolution de l'indicateur",
+        title="Ã‰volution de l'indicateur",
         labels={
-            "year": "Année",
+            "year": "AnnÃ©e",
             "value": "Population (%)"
         },
         template="plotly_white"
@@ -426,7 +455,7 @@ else:
     )
 
     fig.update_layout(
-        xaxis_title="Année",
+        xaxis_title="AnnÃ©e",
         yaxis_title="Population (%)",
         hovermode="x unified"
     )
@@ -437,13 +466,13 @@ else:
     )
 
     st.info(
-        "Les interruptions de la courbe correspondent aux années "
-        "sans valeur numérique disponible. Elles ne représentent "
-        "pas une valeur de zéro."
+        "Les interruptions de la courbe correspondent aux annÃ©es "
+        "sans valeur numÃ©rique disponible. Elles ne reprÃ©sentent "
+        "pas une valeur de zÃ©ro."
     )
 
-    # Tableau de toutes les années de la période
-    st.subheader("📋 Données de la période sélectionnée")
+    # Tableau de toutes les annÃ©es de la pÃ©riode
+    st.subheader("ðŸ“‹ DonnÃ©es de la pÃ©riode sÃ©lectionnÃ©e")
 
     display_data = filtered_data[
         ["year", "indicator_code", "indicator_name", "value"]
@@ -455,7 +484,7 @@ else:
 
     display_data = display_data.rename(
         columns={
-            "year": "Année",
+            "year": "AnnÃ©e",
             "indicator_code": "Code",
             "indicator_name": "Indicateur",
             "value": "Valeur (%)",
@@ -474,16 +503,16 @@ else:
     ).encode("utf-8-sig")
 
     st.download_button(
-        label="⬇️ Télécharger les données CSV",
+        label="â¬‡ï¸ TÃ©lÃ©charger les donnÃ©es CSV",
         data=csv_data,
         file_name="congo_wash_analysis.csv",
         mime="text/csv"
     )
 
     st.warning(
-        "Attention méthodologique : la régularité de certaines "
-        "séries temporelles mérite une vérification de la méthode "
-        "de production des estimations avant de les interpréter "
+        "Attention mÃ©thodologique : la rÃ©gularitÃ© de certaines "
+        "sÃ©ries temporelles mÃ©rite une vÃ©rification de la mÃ©thode "
+        "de production des estimations avant de les interprÃ©ter "
         "comme des mesures annuelles directes."
     )
 
@@ -494,7 +523,7 @@ else:
 
 st.divider()
 
-st.header("🧪 Qualité et disponibilité des données")
+st.header("ðŸ§ª QualitÃ© et disponibilitÃ© des donnÃ©es")
 
 quality = indicator_summary.copy()
 
@@ -507,7 +536,7 @@ st.dataframe(
             "total_observations": "Observations",
             "available_values": "Valeurs disponibles",
             "missing_values": "Valeurs manquantes",
-            "completeness": "Complétude (%)"
+            "completeness": "ComplÃ©tude (%)"
         }
     ),
     width="stretch",
@@ -520,10 +549,10 @@ fig_quality = px.bar(
     y="completeness",
     color="sdg_indicator",
     text="completeness",
-    title="Taux de complétude par indicateur",
+    title="Taux de complÃ©tude par indicateur",
     labels={
         "sdg_indicator": "Indicateur ODD",
-        "completeness": "Complétude (%)"
+        "completeness": "ComplÃ©tude (%)"
     },
     template="plotly_white"
 )
@@ -550,25 +579,25 @@ st.plotly_chart(
 
 st.divider()
 
-st.header("🛡️ Quality Monitor")
+st.header("ðŸ›¡ï¸ Quality Monitor")
 st.caption(
-    "Contrôles automatiques de cohérence, d'intégrité "
-    "et de traçabilité du jeu de données."
+    "ContrÃ´les automatiques de cohÃ©rence, d'intÃ©gritÃ© "
+    "et de traÃ§abilitÃ© du jeu de donnÃ©es."
 )
 
-# 1. Détection des doublons
+# 1. DÃ©tection des doublons
 duplicate_count = df.duplicated(
     subset=["country_iso3", "indicator_code", "year"]
 ).sum()
 
-# 2. Détection des valeurs hors intervalle 0-100
+# 2. DÃ©tection des valeurs hors intervalle 0-100
 valid_values = df["value"].dropna()
 
 out_of_range_count = (
     (~valid_values.between(0, 100)).sum()
 )
 
-# 3. Vérification des métadonnées
+# 3. VÃ©rification des mÃ©tadonnÃ©es
 metadata_columns = [
     "country_iso3",
     "indicator_code",
@@ -587,7 +616,7 @@ missing_metadata_count = (
     df[available_metadata].isna().any(axis=1).sum()
 )
 
-# 4. Vérification de la traçabilité
+# 4. VÃ©rification de la traÃ§abilitÃ©
 
 if "extraction_id" in df.columns:
 
@@ -618,70 +647,70 @@ if (
 else:
     orphan_extraction_count = len(df)
 
-# 5. Vérification des années
+# 5. VÃ©rification des annÃ©es
 missing_year_count = df["year"].isna().sum()
 
-# Tableau de contrôle
+# Tableau de contrÃ´le
 checks = [
     ("Doublons", duplicate_count),
     ("Valeurs hors intervalle 0-100", out_of_range_count),
-    ("Observations avec métadonnées manquantes", missing_metadata_count),
+    ("Observations avec mÃ©tadonnÃ©es manquantes", missing_metadata_count),
     ("Observations sans identifiant d'extraction", missing_extraction_id),
-    ("Observations liées à une extraction inexistante", orphan_extraction_count),
-    ("Observations sans année", missing_year_count)
+    ("Observations liÃ©es Ã  une extraction inexistante", orphan_extraction_count),
+    ("Observations sans annÃ©e", missing_year_count)
 ]
 
 quality_checks = pd.DataFrame(
     checks,
-    columns=["Contrôle", "Anomalies détectées"]
+    columns=["ContrÃ´le", "Anomalies dÃ©tectÃ©es"]
 )
 
-quality_checks["Résultat"] = quality_checks[
-    "Anomalies détectées"
+quality_checks["RÃ©sultat"] = quality_checks[
+    "Anomalies dÃ©tectÃ©es"
 ].apply(
-    lambda x: "Conforme" if x == 0 else "À vérifier"
+    lambda x: "Conforme" if x == 0 else "Ã€ vÃ©rifier"
 )
 
-# Indicateurs de synthèse
+# Indicateurs de synthÃ¨se
 qc1, qc2, qc3 = st.columns(3)
 
 qc1.metric(
-    "Contrôles réalisés",
+    "ContrÃ´les rÃ©alisÃ©s",
     len(quality_checks)
 )
 
 qc2.metric(
-    "Anomalies détectées",
-    int(quality_checks["Anomalies détectées"].sum())
+    "Anomalies dÃ©tectÃ©es",
+    int(quality_checks["Anomalies dÃ©tectÃ©es"].sum())
 )
 
 qc3.metric(
-    "Observations analysées",
+    "Observations analysÃ©es",
     len(df)
 )
 
-# Résultats détaillés
-st.subheader("Résultats des contrôles")
+# RÃ©sultats dÃ©taillÃ©s
+st.subheader("RÃ©sultats des contrÃ´les")
 
 st.dataframe(
     quality_checks,
-    use_container_width=True,
+    width='stretch',
     hide_index=True
 )
 
-if quality_checks["Anomalies détectées"].sum() == 0:
+if quality_checks["Anomalies dÃ©tectÃ©es"].sum() == 0:
     st.success(
-        "Tous les contrôles automatiques sont conformes."
+        "Tous les contrÃ´les automatiques sont conformes."
     )
 else:
     st.warning(
-        "Certaines anomalies nécessitent une vérification."
+        "Certaines anomalies nÃ©cessitent une vÃ©rification."
     )
 
 st.info(
     "Important : les valeurs manquantes des indicateurs "
-    "ne sont pas considérées automatiquement comme des erreurs. "
-    "Elles sont suivies séparément dans le tableau de complétude."
+    "ne sont pas considÃ©rÃ©es automatiquement comme des erreurs. "
+    "Elles sont suivies sÃ©parÃ©ment dans le tableau de complÃ©tude."
 )
 
 
@@ -693,13 +722,14 @@ st.divider()
 
 st.caption(
     "WASH Data Observatory | Congo |\n"
-    "Projet de portfolio en Data Science et Santé Publique.\n"
+    "Projet de portfolio en Data Science et SantÃ© Publique.\n"
     "DATAFREEK Consulting || 2026 "
-    "Tout Droits réservés."
+    "Tout Droits rÃ©servÃ©s."
 )
 
 st.caption(
-    "Les valeurs manquantes ne sont pas remplacées par zéro. "
-    "Les résultats doivent être interprétés selon la période "
-    "et la méthodologie de production des données."
+    "Les valeurs manquantes ne sont pas remplacÃ©es par zÃ©ro. "
+    "Les rÃ©sultats doivent Ãªtre interprÃ©tÃ©s selon la pÃ©riode "
+    "et la mÃ©thodologie de production des donnÃ©es."
 )
+
