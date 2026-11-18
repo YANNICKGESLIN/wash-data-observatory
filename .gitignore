@@ -1,0 +1,22 @@
+
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+
+# Bases de données locales
+data/processed/*.db
+data/processed/*.sqlite
+data/processed/*.sqlite3
+
+# Sauvegardes
+*.bak
+*.backup
+
+# Sauvegardes de fichiers Python
+*_backup*.py

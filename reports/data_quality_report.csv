@@ -1,0 +1,4 @@
+indicator_code,sdg_indicator,total_records,available_values,missing_values,first_year,last_year,completeness_rate,status
+SH.H2O.SMDW.ZS,6.1.1,66,22,44,1960,2025,33.33,LOW COMPLETENESS
+SH.STA.HYGN.ZS,6.2.1b,66,9,57,1960,2025,13.64,LOW COMPLETENESS
+SH.STA.SMSS.ZS,6.2.1a,66,0,66,1960,2025,0.0,NO DATA

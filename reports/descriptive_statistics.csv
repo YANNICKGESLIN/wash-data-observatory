@@ -1,0 +1,3 @@
+indicator_code,sdg_indicator,indicator_name,observations,moyenne,mediane,minimum,maximum,ecart_type,premiere_annee,derniere_annee
+SH.H2O.SMDW.ZS,6.1.1,People using safely managed drinking water services (% of population),22,38.33,40.63,27.9,45.87,6.83,2000,2021
+SH.STA.HYGN.ZS,6.2.1b,People with basic handwashing facilities including soap and water (% of population),9,47.74,47.74,47.3,48.19,0.3,2011,2019

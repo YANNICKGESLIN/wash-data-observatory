@@ -1,0 +1,17 @@
+variable,description,type,unit,fichier,regle_traitement
+country,Nom du pays tel que fourni par la source WDI.,Texte,Sans objet,Brut et analyse,Libellé officiel de la source.
+country_iso3,Code ISO 3166-1 alpha-3 du pays.,Texte,Sans objet,Brut et analyse,COG correspond à la République du Congo.
+sdg_indicator,Numéro de l'indicateur des Objectifs de développement durable.,Texte,Sans objet,Brut et analyse,"Indicateurs suivis : 6.1.1, 6.2.1b et 6.2.1a."
+indicator_code,Code technique de l'indicateur dans la base World Development Indicators.,Texte,Sans objet,Brut et analyse,"Codes : SH.H2O.SMDW.ZS, SH.STA.HYGN.ZS et SH.STA.SMSS.ZS."
+indicator_name,Intitulé de l'indicateur fourni par la source.,Texte,Sans objet,Brut et analyse,Libellé original en anglais.
+year,Année de référence de l'observation.,Entier,Année,Brut et analyse,Année convertie en valeur numérique.
+value,Valeur observée pour l'indicateur et l'année concernés.,Numérique nullable,% de la population,Brut et analyse,Les valeurs absentes restent NULL/NaN. Elles ne sont jamais remplacées par zéro.
+unit,Unité de mesure de l'indicateur.,Texte,Sans objet,Brut et analyse,"Unité fournie par la source, ici % of population."
+source,Organisme ou base ayant fourni les données directement.,Texte,Sans objet,Brut et analyse,World Bank - World Development Indicators.
+original_source,Source institutionnelle d'origine des estimations.,Texte,Sans objet,Brut et analyse,WHO/UNICEF Joint Monitoring Programme (JMP).
+source_url,Adresse de l'API utilisée pour récupérer l'indicateur.,URL,Sans objet,Brut et analyse,Endpoint de l'API World Bank correspondant au pays et au code indicateur.
+retrieved_at,Date et heure de récupération de l'observation.,Date-heure ISO 8601,Horodatage UTC,Brut et analyse,"Horodatage de l'extraction, avec fuseau horaire."
+duplicate_key,"Indique si la combinaison pays, indicateur et année est dupliquée.",Booléen,Vrai/Faux,Analyse uniquement,"Calculé avec country_iso3, indicator_code et year. Les doublons sont conservés pour investigation."
+missing_value,Indique si la valeur de l'observation est absente.,Booléen,Vrai/Faux,Analyse uniquement,Vrai lorsque value est manquante (isna).
+valid_percentage,Indique si la valeur respecte l'intervalle de pourcentage autorisé.,Booléen,Vrai/Faux,Analyse uniquement,Vrai si value est comprise entre 0 et 100 inclus. Une valeur manquante n'est pas valide.
+valid_year,Indique si l'année respecte la plage retenue pour la préparation des données.,Booléen,Vrai/Faux,Analyse uniquement,Vrai si year est renseignée et comprise entre 1900 et 2026 inclus.
